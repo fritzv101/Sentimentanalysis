@@ -1,4 +1,4 @@
-# Sentimentanalysis
+# Sentiment analysis with Natural Language Processing
 
 Language learners struggle to acquire both linguistic nuances and vernacular expressions in our increasingly
 interconnected society. Advanced natural language processing (NLP) techniques are used in this project, "Culturally
