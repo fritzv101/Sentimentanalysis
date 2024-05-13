@@ -6,3 +6,22 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 import nltk
 nltk.download('all')
+
+df = pd.read_csv('/content/drive/MyDrive/AI4ALL/training.1600000.processed.noemoticon.csv', encoding="latin1", header=None)
+df.head()
+
+statements = df.iloc[:, 5]
+statements
+
+def preprocess_text(text):
+    tokens = word_tokenize(text.lower())
+    filtered_tokens = [token for token in tokens if token not in stopwords.words('english')]
+    lemmatizer = WordNetLemmatizer()
+    lemmatized_tokens = [lemmatizer.lemmatize(token) for token in filtered_tokens]
+    processed_text = ' '.join(lemmatized_tokens)
+    return processed_text # processed_text is returned
+
+statements = df.iloc[:, 5].apply(preprocess_text) # processed text
+ratings = df.iloc[:, 0] # 0 is negative, 4 is positive, 2 is neutral. this is the original rating
+# statements
+# ratings
