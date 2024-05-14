@@ -25,3 +25,43 @@ statements = df.iloc[:, 5].apply(preprocess_text) # processed text
 ratings = df.iloc[:, 0] # 0 is negative, 4 is positive, 2 is neutral. this is the original rating
 # statements
 # ratings
+
+analyzer = SentimentIntensityAnalyzer() # using the default NLP function
+def get_sentiment(text):  # get the sentiment score of the text
+    scores = analyzer.polarity_scores(text)
+    sentiment = []
+    # sentiment is an array where if the score is 'pos' 2 is appended, more 'neg' 0 is appended, else 'neu' is 1
+    if scores['pos'] > scores['neg'] and scores['pos'] > scores['neu']:
+      sentiment.append(2)
+    elif scores['neg'] > 0:
+      sentiment.append(0)
+    else:
+      sentiment.append(1)
+    return sentiment
+sentiments_own = [(get_sentiment(i), i) for i in statements] # for all processed text, get the sentiment. sentiment_own is an array of sentiments that are determined by the NLP analyzer
+# sentiments_own
+
+ratings_original = [] # ratings_original is an array of sentiments for the unprocessed original ratings
+for i in ratings: # all the unprocessed ratings
+  if i == 0:
+    ratings_original.append(0)
+  elif i == 4:
+    ratings_original.append(2)
+  else:
+    ratings_original.append(1)
+# ratings_original
+
+total = 0
+for index, value in enumerate(ratings_original):
+  #print(ratings_original[index], sentiments_own[index])
+  if ratings_original[index] == sentiments_own[index][0][0]:
+    total += 1 # if the processed ratings
+print("Accuracy is:", total / 1000)
+# the accuracy is 0.515 out of 3 choices, positive, negative, and neutral
+
+!pip install -q transformers
+import random
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipeline
+
+tokenizer = AutoTokenizer.from_pretrained("DunnBC22/bert-base-uncased-Twitter_Sentiment_Analysis_v2")
+model = AutoModelForSequenceClassification.from_pretrained("DunnBC22/bert-base-uncased-Twitter_Sentiment_Analysis_v2")
