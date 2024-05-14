@@ -65,3 +65,138 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, pipe
 
 tokenizer = AutoTokenizer.from_pretrained("DunnBC22/bert-base-uncased-Twitter_Sentiment_Analysis_v2")
 model = AutoModelForSequenceClassification.from_pretrained("DunnBC22/bert-base-uncased-Twitter_Sentiment_Analysis_v2")
+
+sentiment_pipeline = pipeline("text-classification", model=model, tokenizer=tokenizer)
+sample_texts = df.iloc[:1000, 5]
+sentiments = []
+for text in sample_texts:
+    result = sentiment_pipeline(text)[0]
+    sentiments.append({"text": text, "sentiment": result["label"], "score": result["score"]})
+
+total = 0
+hugging_ratings = []
+for i in sentiments:
+  if i['sentiment'] == 'positive':
+    hugging_ratings.append(4)
+  if i['sentiment'] == 'negative':
+    hugging_ratings.append(0)
+  else:
+    hugging_ratings.append(2)
+
+for index, value in enumerate(ratings):
+  if ratings[index] == hugging_ratings[index]:
+    total += 1
+
+print("Acc is:", total / 1000)
+
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+import re
+import string
+import nltk
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.layers import Embedding, Bidirectional, LSTM, Dense
+from tensorflow.keras.models import Sequential
+from keras.callbacks import EarlyStopping
+from sklearn.metrics import accuracy_score
+
+df = pd.read_csv('/content/drive/MyDrive/AI4ALL/training.1600000.processed.noemoticon.csv', encoding="latin1", header=None)
+df.head()
+#Index(['target', 'ids', 'date', 'flag', 'user', 'text'], dtype='object')
+df.columns
+# 1600000 Tweets and 6 columns in this Dataset
+df.shape
+
+df.info()
+df.describe()
+df.duplicated().sum()
+# Lets Explore the id column
+df_ids=df[1].min()
+print("The Minimum ids are:",df_ids)
+df_ids1=df[1].max()
+print("The Maximum ids are:",df_ids1)
+df_ids2=df[1].sum()
+print("The sum of ids are:",df_ids2)
+
+# First, let's get the value counts of the 'target' column
+df_1 = df[0].value_counts()
+
+# Create a DataFrame with the counts
+df_target = pd.DataFrame(df_1)
+
+# Reset the index to have the 'target' values as a column
+df_target = df_target.reset_index()
+
+# Rename the columns
+df_target.columns = ['target', 'count']
+
+# Filter the DataFrame to get counts of positive (1) and negative (0) tweets
+positive_count = df_target[df_target['target'] == 1]['count'].values
+negative_count = df_target[df_target['target'] == 0]['count'].values
+
+# Determine which value represents positive tweets based on counts
+if len(positive_count) > 0 and (len(negative_count) == 0 or positive_count[0] > negative_count[0]):
+    positive_value = 0
+    negative_value = 1
+elif len(negative_count) > 0:
+    positive_value = 1
+    negative_value = 0
+else:
+    # Handle the case where both counts are empty
+    positive_value = None
+    negative_value = None
+
+if positive_value is not None and negative_value is not None:
+    print(f"Assuming {df_target['count'].sum()} tweets:")
+    print(f"Value {positive_value} represents positive tweets.")
+    print(f"Value {negative_value} represents negative tweets.")
+else:
+    print("Unable to determine which value represents positive or negative tweets.")
+
+import matplotlib.pyplot as plt
+df_target = (
+    df[0].value_counts().to_frame(name='count').reset_index()
+    .rename(columns={'index': 0})
+)
+
+# Convert 'target' to numeric (1 for positive, 0 for negative)
+df_target[0] = df_target[0].replace(4, 1)
+
+# Calculate user counts for positive and negative tweets
+positive_tweets = df_target[df_target[0] == 1]['count'].sum()
+negative_tweets = df_target[df_target[0] == 0]['count'].sum()
+
+#sunplots
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 6))
+
+# Pie Chart for Sentiment Distribution
+ax1.pie(
+    [positive_tweets, negative_tweets],
+    labels=['Positive', 'Negative'],
+    autopct="%1.1f%%",
+    startangle=90,
+    colors=['green', 'red'],
+    wedgeprops=dict(width=0.6)
+)
+ax1.set_title('Sentiment Distribution')
+
+# Bar Chart for User Counts
+ax2.bar(['Positive', 'Negative'], [positive_tweets, negative_tweets], color=['green', 'red'])
+ax2.set_xlabel('Sentiment')
+ax2.set_ylabel('Count')
+ax2.set_title('Sentiments')
+
+# Tight layout for better overall plot arrangement
+plt.tight_layout()
+
+# Display the combined plot
+plt.show()
+
+
