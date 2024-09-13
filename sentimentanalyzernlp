@@ -262,3 +262,27 @@ def replace_chat_words(text):
         text = text.replace(word, expanded_form)
     return text
 
+import string,time
+string.punctuation
+
+from nltk.corpus import stopwords
+
+# Function to remove punctuation
+def remove_punctuation(text):
+    clean_text = ''.join(ch for ch in text if ch not in string.punctuation)
+    return clean_text
+
+# Function to remove stopwords
+def remove_stopwords(text):
+    stop_words = set(stopwords.words('english'))
+    words = text.split()
+    filtered_words = [word for word in words if word.lower() not in stop_words]
+    return ' '.join(filtered_words)
+def remove_whitespace(text):
+    return text.strip()
+
+# Function to remove special characters
+def remove_special_characters(text):
+    clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
+    return clean_text
+
