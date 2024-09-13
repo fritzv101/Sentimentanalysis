@@ -316,3 +316,36 @@ def plot_word_frequencies(text, title):
 plot_word_frequencies(' '.join(df[5]), 'Word Frequencies After Cleaning')
 # plot_word_frequencies(' '.join(df[4]), 'User Word Frequencies After Cleaning')
 # plot_word_frequencies(' '.join(df[3]), 'Flag Word Frequencies After Cleaning')
+
+# prove there are no missing values in the dataset
+#Index(['target', 'ids', 'date', 'flag', 'user', 'text'], dtype='object')
+df.isnull().sum().sort_values(ascending=False)
+
+# TRAIN LINEAR REGRESSION MODEL
+
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score
+
+# convert tokenized text to BoW features
+vectorizer = CountVectorizer()
+X = vectorizer.fit_transform(df[5])
+
+# assuming df is your DataFrame with the target column modified
+y = df[0]
+
+# split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# initialize and train logistic regression model
+logreg = LogisticRegression()
+logreg.fit(X_train, y_train)
+
+# predict on the testing set
+y_pred = logreg.predict(X_test)
+
+# eval model
+accuracy = accuracy_score(y_test, y_pred)
+print("Logistic Regression Accuracy:", accuracy)
+
