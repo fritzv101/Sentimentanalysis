@@ -285,4 +285,34 @@ def remove_whitespace(text):
 def remove_special_characters(text):
     clean_text = re.sub(r'[^a-zA-Z0-9\s]', '', text)
     return clean_text
+def preprocess_text(text):
+    text = remove_html_tags(text)
+    text = remove_urls(text)
+    text = convert_to_lowercase(text)
+    text = replace_chat_words(text)
+    text = remove_punctuation(text)
+    # text = remove_stopwords(text)
+    text = remove_whitespace(text)
+    text = remove_special_characters(text)
+    return text
 
+# Apply preprocessing function to DataFrame
+df[5] = df[5].apply(preprocess_text)
+
+# word frequency plot
+# Function to plot bar plot of word frequencies
+def plot_word_frequencies(text, title):
+    word_freq = nltk.FreqDist(text.split())
+    common_words = word_freq.most_common(20)
+    words, freqs = zip(*common_words)
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x=list(words), y=list(freqs), palette='viridis')
+    plt.title(title)
+    plt.xlabel('Words')
+    plt.ylabel('Frequency')
+    plt.xticks(rotation=45)
+    plt.show()
+# Step 3: Plot bar plots of word frequencies
+plot_word_frequencies(' '.join(df[5]), 'Word Frequencies After Cleaning')
+# plot_word_frequencies(' '.join(df[4]), 'User Word Frequencies After Cleaning')
+# plot_word_frequencies(' '.join(df[3]), 'Flag Word Frequencies After Cleaning')
